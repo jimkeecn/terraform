@@ -117,7 +117,46 @@ aws s3 ls
 ## 3. Create Environment
 
 ### (Non-PowerShell Approach)
-- **Instructions for this approach are not provided yet.**
+1. For existing AWS Account, you should be able to see an env folder in the main project root.
+   - if you see env project, just create the enviornment folder.
+   - if you didn't see env project which means you are creating the first enviornment resource on the AWS Account.
+   - Create a \env folder and then create a enviornment folder such as dev, test, prod, sandbox, stagging.
+   ```
+       - env\
+         - prod\
+   ```
+2. Copy all the folder and files from template folder to the enviornment folder
+   ```
+       - env\
+         - prod\
+           - ec2\
+           - iam\
+           - load_balancer\
+           - rest_of_folders\
+           - main.tf
+           - modules.tf
+           - var.tf
+      ```
+3. start editing the var.tf file
+      - **is_prod** - if the enviornment is a production enviornment, set is_prod default value to true otherwise to false.
+      - **environment** - set the enviornment default value to one of (Dev, Test, Prod, Stagging, Sandbox), follow the same camel case format.
+      - **client_name** - add the client_name default value such as cxi, primevalue. 
+            - this primarly use to create route53 url or essential naming convention for other resources e.g s3 bucket and ec2 variable.
+            - if client requires to have different or complex application URL, configure the next variable **client_force_url**
+      - **client_force_url** - configure this default value if client request a special url that can be differen from the **client_name**, otherwise leave blank.
+      - **client_region** configure this default value to valid AWS region such as ap-southeast-2
+      - **certifcate_arn** configure this to the valid aws certificate ARN, looking for the ARN that is for *.clients.cx
+      - **ui_ami_id** configure this to use existing shared UI AMI or preset AWS AMI. 
+            - if you use the existing shared AMI from other AWS account, you may not need to setup the **ui_key**
+            - if you use preset AWS AMI which create fresh EC2 instance, you will need to setup the **ui_key**
+      - **db_ami_id** configure this to use existing shared DB AMI or preset AWS AMI. 
+            - if you use the existing shared AMI from other AWS account, you may not need to setup the **db_key**
+            - if you use preset AWS AMI which create fresh EC2 instance, you will need to setup the **db_key**
+
+
+       
+
+
 
 ### (PowerShell Approach)
 1. Navigate to the **main folder** where `env-setup.ps1` is located.

@@ -40,7 +40,7 @@ variable "environment" {
 resource "aws_instance" "ui_instance" {
   ami                  = var.ui_ami_id # Replace with actual AMI ID
   instance_type        = "t2.large"
-  key_name            = var.ui_key # Make sure the Key Name is created in Env_UI_Key 
+  key_name            = length(var.ui_key) > 0 ? var.ui_key : null # Make sure the Key Name is created in Env_UI_Key 
   vpc_security_group_ids = [var.public_sg_id] # Use module reference
   subnet_id           = var.public_subnet_id # Use module reference
   disable_api_termination = true # Enable termination protection
@@ -70,7 +70,7 @@ resource "aws_eip" "ui_instance_eip" {
 resource "aws_instance" "db_instance" {
   ami                  = var.db_ami_id # Replace with actual AMI ID
   instance_type        = "t2.large"
-  key_name            = var.db_key # Make sure the Key Name is created in Env_DB_Key
+  key_name            = length(var.db_key) > 0 ? var.db_key : null # Make sure the Key Name is created in Env_DB_Key
   vpc_security_group_ids = [var.private_sg_id] # Use module reference
   subnet_id           = var.private_subnet_id # Use module reference
   disable_api_termination = true # Enable termination protection

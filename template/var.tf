@@ -4,7 +4,7 @@ variable "is_prod" {
 }
 
 variable "environment" {
-  description = "The environment to deploy (Dev, Test, Prod, Stagging)"
+  description = "The environment to deploy (Dev, Test, Prod, Stagging, Sandbox)"
   type        = string
   default     = "" //Replace with your environment, please use CamelCase. for s3 it will auto-convert to lowercase
 }
