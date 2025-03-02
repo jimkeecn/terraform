@@ -2,7 +2,7 @@
 
 ## 1. Are You Creating Resources for a Fresh AWS Account?
 If **Yes**, proceed with reading the rest of this section.  
-If **No** (i.e., you are creating resources for another environment), please proceed to **[Step 2: AMI Key Pair](#2-bootstrap-the-terraform-for-new-aws-account)**.
+If **No** (i.e., you are creating resources for another environment), please proceed to **[Step 3: AMI Key Pair]**.
 
 ---
 
