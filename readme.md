@@ -114,8 +114,6 @@ aws s3 ls
 
 ---
 
-# AWS Account Setup Guide
-
 ## 3. Create Environment
 
 ### (Non-PowerShell Approach)
