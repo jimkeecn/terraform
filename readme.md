@@ -146,7 +146,7 @@ aws s3 ls
    ```
 
 3. **Edit `var.tf` file in the environment folder:**
-   - `is_prod`: Set to `true` for production environments, otherwise `false`.
+   - `is_prod`: Set to `true` for production environments, otherwise `false`. (this is crusial to allow the script to know whether to include env variable inside the route53 or not. e.g cxisoftware.clients.cx or cxisoftware-stagging.clients.cx)
    - `environment`: Use one of `Dev`, `Test`, `Prod`, `Staging`, or `Sandbox` (must match camel case format).
    - `client_name`: Set to the client name (e.g., `cxi`, `primevalue`). This is used for Route 53 URLs and resource naming.
    - `client_force_url`: Specify a custom URL if required; otherwise, leave blank.
