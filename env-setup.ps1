@@ -1,3 +1,7 @@
+# Import Validate-AMI function
+. "$PSScriptRoot\script_modules\validate_ami.ps1"
+. "$PSScriptRoot\script_modules\key_pair.ps1"
+
 # Check if Terraform is installed
 if (!(Get-Command terraform -ErrorAction SilentlyContinue)) {
     Write-Host "Error: Terraform is not installed. Please install Terraform and try again." -ForegroundColor Red
@@ -155,29 +159,24 @@ if ($certStatus -eq "ISSUED") {
     exit 1
 }
 
+# Prompt and validate UI AMI
 $uiAmiId = Read-Host "Enter the AMI ID for the UI instance"
 if ($uiAmiId -eq "") {
     Write-Host "Error: AMI ID for the UI instance cannot be empty." -ForegroundColor Red
     exit 1
 }
+Validate-AMI -amiId $uiAmiId -clientName $clientName
 
+# Prompt and validate DB AMI
 $dbAmiId = Read-Host "Enter the AMI ID for the DB instance"
 if ($dbAmiId -eq "") {
     Write-Host "Error: AMI ID for the DB instance cannot be empty." -ForegroundColor Red
     exit 1
 }
+Validate-AMI -amiId $dbAmiId -clientName $clientName
 
-$uiKey = Read-Host "Enter the key for the UI instance"
-if ($uiKey -eq "") {
-    Write-Host "Error: Key for the UI instance cannot be empty." -ForegroundColor Red
-    exit 1
-}
-
-$dbKey = Read-Host "Enter the key for the DB instance"
-if ($dbKey -eq "") {
-    Write-Host "Error: Key for the DB instance cannot be empty." -ForegroundColor Red
-    exit 1
-}
+$uiKey = Select-AwsKeyPair -clientName $clientName
+$dbKey = Select-AwsKeyPair -clientName $clientName
 
 $sslPolicy = Read-Host "Enter the SSL policy (leave blank for default)"
 
