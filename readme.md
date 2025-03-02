@@ -114,49 +114,107 @@ aws s3 ls
 
 ---
 
+# AWS Account Setup Guide
+
 ## 3. Create Environment
 
 ### (Non-PowerShell Approach)
-1. For existing AWS Account, you should be able to see an env folder in the main project root.
-   - if you see env project, just create the enviornment folder.
-   - if you didn't see env project which means you are creating the first enviornment resource on the AWS Account.
-   - Create a \env folder and then create a enviornment folder such as dev, test, prod, sandbox, stagging.
+
+1. **Check for an existing environment folder:**
+   - If the AWS account has been used before, an `env` folder should be present in the project root.
+   - If the `env` folder exists, create a new subfolder for the environment (e.g., `dev`, `test`, `prod`, `staging`).
+   - If no `env` folder exists, create it first, then add an environment subfolder.
+
+   **Example:**
    ```
-       - env\
-         - prod\
+   - env/
+     - prod/
    ```
-2. Copy all the folder and files from template folder to the enviornment folder
+
+2. **Copy template files:**
+   - Copy all files and folders from the `template` folder to the new environment folder.
+
+   **Example:**
    ```
-       - env\
-         - prod\
-           - ec2\
-           - iam\
-           - load_balancer\
-           - rest_of_folders\
-           - main.tf
-           - modules.tf
-           - var.tf
-      ```
-3. start editing the var.tf file
-      - **is_prod** - if the enviornment is a production enviornment, set is_prod default value to true otherwise to false.
-      - **environment** - set the enviornment default value to one of (Dev, Test, Prod, Stagging, Sandbox), follow the same camel case format.
-      - **client_name** - add the client_name default value such as cxi, primevalue. 
-            - this primarly use to create route53 url or essential naming convention for other resources e.g s3 bucket and ec2 variable.
-            - if client requires to have different or complex application URL, configure the next variable **client_force_url**
-      - **client_force_url** - configure this default value if client request a special url that can be differen from the **client_name**, otherwise leave blank.
-      - **client_region** configure this default value to valid AWS region such as ap-southeast-2
-      - **certifcate_arn** configure this to the valid aws certificate ARN, looking for the ARN that is for *.clients.cx
-      - **ui_ami_id** configure this to use existing shared UI AMI or preset AWS AMI. 
-            - if you use the existing shared AMI from other AWS account, you may not need to setup the **ui_key**
-            - if you use preset AWS AMI which create fresh EC2 instance, you will need to setup the **ui_key**
-      - **db_ami_id** configure this to use existing shared DB AMI or preset AWS AMI. 
-            - if you use the existing shared AMI from other AWS account, you may not need to setup the **db_key**
-            - if you use preset AWS AMI which create fresh EC2 instance, you will need to setup the **db_key**
+   - env/
+     - prod/
+       - ec2/
+       - iam/
+       - load_balancer/
+       - rest_of_folders/
+       - main.tf
+       - modules.tf
+       - var.tf
+   ```
 
+3. **Edit `var.tf` file in the environment folder:**
+   - `is_prod`: Set to `true` for production environments, otherwise `false`.
+   - `environment`: Use one of `Dev`, `Test`, `Prod`, `Staging`, or `Sandbox` (must match camel case format).
+   - `client_name`: Set to the client name (e.g., `cxi`, `primevalue`). This is used for Route 53 URLs and resource naming.
+   - `client_force_url`: Specify a custom URL if required; otherwise, leave blank.
+   - `client_region`: Set to a valid AWS region (e.g., `ap-southeast-2`).
+   - `certificate_arn`: Provide the ARN for `*.clients.cx`.
+   - `ui_ami_id`: Set to a shared UI AMI or a preset AWS AMI. If using a fresh AMI, ensure `ui_key` is configured.
+   - `db_ami_id`: Set to a shared DB AMI or a preset AWS AMI. If using a fresh AMI, ensure `db_key` is configured.
+   - `ui_key`: If a new UI key pair is required, provide a valid key pair name; otherwise, EC2 creation will **fail**.
+   - `db_key`: If a new DB key pair is required, provide a valid key pair name; otherwise, EC2 creation will **fail**.
+   - `ssl_policy`: Set a valid SSL policy for the load balancer (e.g., `ELBSecurityPolicy-TLS13-1-2-2021-06`).
 
-       
+4. **Edit `main.tf` to configure the S3 backend:**
+   Locate the `backend "s3"` block and replace placeholders with actual values:
 
+   **Original:**
+   ```
+   backend "s3" {
+         bucket         = "[bucket-client-name]-terraform-state-bucket"
+         key            = "[bucket-env]/terraform.tfstate"
+         region         = "[bucket-region]"
+         encrypt        = true
+         use_lockfile   = true
+         profile        = "[bucket-client-name]"
+   }
+   ```
 
+   **Updated Example:**
+   ```
+   backend "s3" {
+         bucket         = "cxisoftware-terraform-state-bucket"
+         key            = "prod/terraform.tfstate"
+         region         = "ap-southeast-2"
+         encrypt        = true
+         use_lockfile   = true
+         profile        = "cxisoftware"
+   }
+   ```
+
+5. **Initialize Terraform inside the environment folder:**
+   Open PowerShell in `env/[environment]/` and run:
+   ```sh
+   terraform init
+   ```
+   - Validates Terraform code:
+   ```sh
+   terraform validate
+   ```
+   - Runs a dry-run check before applying changes:
+   ```sh
+   terraform plan
+   ```
+   - Verify that **60 AWS resources** will be created and check:
+     - Route 53 URL correctness.
+     - EC2 instance creation.
+     - IAM role creation.
+     - S3 bucket existence.
+     - Load balancer targeting the correct group.
+
+6. **Apply the Terraform configuration:**
+   ```sh
+   terraform apply
+   ```
+   - Wait for completion.
+   - Verify all AWS resources in the AWS Console.
+
+---
 
 ### (PowerShell Approach)
 1. Navigate to the **main folder** where `env-setup.ps1` is located.

@@ -12,12 +12,12 @@ terraform {
   }
   
   backend "s3" {
-    bucket         = "**bucket-client-name**-terraform-state-bucket"
-    key            = "**bucket-env**/terraform.tfstate"
-    region         = "**bucket-region**"
+    bucket         = "[bucket-client-name]-terraform-state-bucket"
+    key            = "[bucket-env]/terraform.tfstate"
+    region         = "[bucket-region]"
     encrypt        = true
     use_lockfile   = true
-    profile        = "**bucket-client-name**"
+    profile        = "[bucket-client-name]"
   }
 }
 
