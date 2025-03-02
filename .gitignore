@@ -1,0 +1,30 @@
+# ignore bootstrap directory
+bootstrap/
+
+# Terraform state files
+terraform.tfstate
+terraform.tfstate.backup
+
+# Terraform crash log
+crash.log
+
+# Ignore .terraform directory (Terraform plugins and modules)
+.terraform/
+.terraform.lock.hcl
+
+# Ignore environment-specific override files
+*.tfvars
+*.tfvars.json
+
+# Ignore any sensitive files or credentials
+*.pem
+*.p12
+*.key
+*.crt
+*.env
+
+# Ignore Terraform plan output files
+plan.out
+
+# Ignore provider and dependency lock files
+.terraform.lock.hcl

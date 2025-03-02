@@ -1,0 +1,33 @@
+[
+    {
+        "LocationConstraint": "ap-southeast-2"
+    },
+    {
+        "Owner": {
+            "DisplayName": "primevalue",
+            "ID": "58feb66c6bf586c9e0e3acd94f7502f2d6c882b25c9db7b24dee6917d055958f"
+        },
+        "Grants": [
+            {
+                "Grantee": {
+                    "DisplayName": "primevalue",
+                    "ID": "58feb66c6bf586c9e0e3acd94f7502f2d6c882b25c9db7b24dee6917d055958f",
+                    "Type": "CanonicalUser"
+                },
+                "Permission": "FULL_CONTROL"
+            }
+        ]
+    },
+    {
+        "ServerSideEncryptionConfiguration": {
+            "Rules": [
+                {
+                    "ApplyServerSideEncryptionByDefault": {
+                        "SSEAlgorithm": "AES256"
+                    },
+                    "BucketKeyEnabled": false
+                }
+            ]
+        }
+    }
+]
