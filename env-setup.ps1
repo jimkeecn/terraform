@@ -11,19 +11,46 @@ if (!(Get-Command aws -ErrorAction SilentlyContinue)) {
 }
 
 
+
 # Prompt user for Client Name
 $clientName = Read-Host "Enter the client name (e.g., acme, cxiregistry, testco, other)"
 $clientName = $clientName.ToLower()
 
+# Initiate All nessary AWS resources
+
+Write-Host "Initiate All nessary AWS resources ........" -ForegroundColor Yellow
+Write-Host "Loading AWS Regions ........" -ForegroundColor Yellow
+
+$validRegions = aws ec2 describe-regions --profile $clientName --query "Regions[*].RegionName" --output text | ForEach-Object { $_ -split "\s+" }
+
+Write-Host "Complete AWS Regions Loading" -ForegroundColor Green
+
+# Fetch available certificates
+Write-Host "Fetching available SSL certificates..." -ForegroundColor Cyan
+$certificates = aws acm list-certificates --profile $clientName --query "CertificateSummaryList[*].{ARN:CertificateArn,Domain:DomainName}" --output json | ConvertFrom-Json
+
+# Check if certificates are available
+if (-not $certificates -or $certificates.Count -eq 0) {
+    Write-Host "❌ No available SSL certificates found in AWS ACM." -ForegroundColor Red
+    exit 1
+}
+
+Write-Host "Successfully fetched available SSL certificates." -ForegroundColor Green
+
+Write-Host "Complete all nessary AWS resources" -ForegroundColor Green
+
 # Validate AWS profile
+Write-Host "Checking AWS Profile ........" -ForegroundColor Yellow
 $profileCheck = aws sts get-caller-identity --profile $clientName 2>&1
 if ($profileCheck -match "could not be found") {
     Write-Host "Error: AWS profile '$clientName' is not valid or does not exist." -ForegroundColor Red
     exit 1
 }
+Write-Host "Checking AWS Profile Complete" -ForegroundColor Green
 
 # Check if AWS S3 bucket exists for the client
 $bucketName = "$clientName-terraform-state-bucket"
+Write-Host "Checking AWS S3 Bucket ........" -ForegroundColor Yellow
 $bucketCheck = aws s3api head-bucket --bucket $bucketName --profile $clientName 2>&1
 
 if ($bucketCheck -match "404" -or $bucketCheck -match "NoSuchBucket") {
@@ -33,34 +60,98 @@ if ($bucketCheck -match "404" -or $bucketCheck -match "NoSuchBucket") {
     Write-Host "Bucket exists but access is denied: $bucketName" -ForegroundColor Yellow
     exit 1
 }
+Write-Host "Checking AWS S3 Bucket Complete" -ForegroundColor Green
 
 
 # Prompt user for variables
 $isProd = Read-Host "Is this a production environment? (true/false)"
-if ($isProd -ne "true" -and $isProd -ne "false") {
+try {
+    $isProd = [System.Convert]::ToBoolean($isProd)
+} catch {
     Write-Host "Error: Invalid value for production environment. Please enter 'true' or 'false'." -ForegroundColor Red
     exit 1
 }
 
-$environment = Read-Host "Enter the environment to deploy (Dev, Test, Prod, Staging, Sandbox)"
-if ($environment -notin @("Dev", "Test", "Prod", "Staging", "Sandbox")) {
-    Write-Host "Error: Invalid environment. Please enter one of the following: Dev, Test, Prod, Staging." -ForegroundColor Red
+$validEnvironments = @("Dev", "Test", "Prod", "Staging", "Sandbox")
+$environment = $null
+
+while ($environment -eq $null) {
+    Write-Host "Select the environment to deploy:"
+    for ($i = 0; $i -lt $validEnvironments.Count; $i++) {
+        Write-Host "$($i + 1). $($validEnvironments[$i])"
+    }
+
+    $selection = Read-Host "Enter the number corresponding to the environment"
+
+    if ($selection -match '^\d+$' -and $selection -gt 0 -and $selection -le $validEnvironments.Count) {
+        $environment = $validEnvironments[$selection - 1]
+    } else {
+        Write-Host "Error: Invalid selection. Please enter a number between 1 and $($validEnvironments.Count)." -ForegroundColor Red
+    }
+}
+
+$clientForceUrl = Read-Host "Enter if your client has specifc URL prefix (leave blank if not applicable)"
+
+# Get the list of valid AWS regions dynamically
+
+# Ensure the regions were retrieved successfully
+if (-not $validRegions) {
+    Write-Host "Error: Failed to retrieve AWS regions. Please check your AWS CLI and profile settings." -ForegroundColor Red
     exit 1
 }
 
-$environment_lowerCase = $environment.ToLower()
+$clientRegion = $null
 
-$clientForceUrl = Read-Host "Enter the client URL for Route 53 (leave blank if not applicable)"
+# Loop until a valid region is selected
+while ($clientRegion -eq $null) {
+    Write-Host "`nAvailable AWS Regions:"
+    for ($i = 0; $i -lt $validRegions.Count; $i++) {
+        Write-Host "$($i + 1). $($validRegions[$i])"
+    }
 
-$clientRegion = Read-Host "Enter the client AWS region"
-if ($clientRegion -eq "") {
-    Write-Host "Error: AWS region cannot be empty." -ForegroundColor Red
-    exit 1
+    $selection = Read-Host "Enter the number corresponding to the AWS region"
+
+    if ($selection -match '^\d+$' -and $selection -gt 0 -and $selection -le $validRegions.Count) {
+        $clientRegion = $validRegions[$selection - 1]
+    } else {
+        Write-Host "Error: Invalid selection. Please enter a number between 1 and $($validRegions.Count)." -ForegroundColor Red
+    }
 }
 
-$certificateArn = Read-Host "Enter the AWS certificate ARN"
-if ($certificateArn -eq "") {
-    Write-Host "Error: Certificate ARN cannot be empty." -ForegroundColor Red
+Write-Host "✅ Selected AWS Region: $clientRegion" -ForegroundColor Green
+
+
+# Display the list of available certificates
+Write-Host "`nAvailable SSL Certificates:" -ForegroundColor Cyan
+for ($i = 0; $i -lt $certificates.Count; $i++) {
+    Write-Host "$($i + 1). $($certificates[$i].Domain)  -  $($certificates[$i].ARN)"
+}
+
+# Prompt user to select a certificate
+$certificateArn = $null
+while ($certificateArn -eq $null) {
+    $selection = Read-Host "Enter the number corresponding to the certificate"
+
+    if ($selection -match '^\d+$' -and $selection -gt 0 -and $selection -le $certificates.Count) {
+        $certificateArn = $certificates[$selection - 1].ARN
+    } else {
+        Write-Host "❌ Invalid selection. Please enter a number between 1 and $($certificates.Count)." -ForegroundColor Red
+    }
+}
+
+Write-Host "`n✅ Selected Certificate ARN: $certificateArn" -ForegroundColor Green
+
+# Validate certificate status
+Write-Host "Checking certificate status..." -ForegroundColor Yellow
+$certStatus = aws acm describe-certificate --profile $clientName --certificate-arn $certificateArn --query "Certificate.Status" --output text
+
+if ($certStatus -eq "ISSUED") {
+    Write-Host "✅ Certificate is issued and valid!" -ForegroundColor Green
+} elseif ($certStatus -eq "PENDING_VALIDATION") {
+    Write-Host "⚠️ Certificate is pending validation." -ForegroundColor Yellow
+    exit 1
+} else {
+    Write-Host "❌ Certificate is either missing or in an invalid state: $certStatus" -ForegroundColor Red
     exit 1
 }
 
@@ -123,6 +214,7 @@ $variables = @{
 # Define source and destination paths
 $sourcePath = "./template"
 
+$environment_lowerCase = $environment.ToLower()
 $destinationPath = "./env/$environment_lowerCase"
 
 # Check if the source folder exists
@@ -143,4 +235,5 @@ if (!(Test-Path -Path $destinationPath)) {
 Copy-Item -Path "$sourcePath\*" -Destination $destinationPath -Recurse -Force
 
 Write-Host "All files copied from '$sourcePath' to '$destinationPath'" -ForegroundColor Green
+
 
