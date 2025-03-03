@@ -237,6 +237,24 @@ aws s3 ls
 
 ---
 
+## How Terraform Handle State from S3
+
+state will be saved under s3 bucket  [client_name]-terraform-state-bucket.
+each environment state file will saved into specific folder which matches the environment.
+```
+   [client_name]-terraform-state-bucket\
+         dev\
+         test\
+         prod\
+         staging\
+         sandbox\
+      
+```
+
+Lost of State file will result in terraform lost track of configuration setting for each AWS resources that created by terraform.
+In this case, terraform will not know the different between the actual AWS resource to the terrform state. Hence it will create new resource since they cannot locate the resources.
+
+
 ## End of Document
 
 

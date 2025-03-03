@@ -61,6 +61,8 @@ module "load_balancer" {
   ssl_policy = var.ssl_policy
 }
 
-# module "dynamodb" {
-#   source = "./dynamodb"
-# }
+module "dynamodb" {
+  source = "./dynamodb"
+  environment = var.environment
+  client_name = var.client_name
+}
