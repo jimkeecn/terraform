@@ -151,11 +151,11 @@ aws s3 ls
    - `client_name`: Set to the client name (e.g., `cxi`, `primevalue`). This is used for Route 53 URLs and resource naming.
    - `client_force_url`: Specify a custom URL prefix if required; otherwise, leave blank. (this only use if you want the route53 url different from `client_name` e,g **cxisoftware** wants **cxiregistry.clients.cx**, so provides **cxiregistry** in this value)
    - `client_region`: Set to a valid AWS region (e.g., `ap-southeast-2`).
-   - `certificate_arn`: Provide the ARN for `*.clients.cx`.
-   - `ui_ami_id`: Set to a shared UI AMI or a preset AWS AMI. If using a fresh AMI, ensure `ui_key` is configured.
-   - `db_ami_id`: Set to a shared DB AMI or a preset AWS AMI. If using a fresh AMI, ensure `db_key` is configured.
-   - `ui_key`: If a new UI key pair is required, provide a valid key pair name; otherwise, EC2 creation will **fail**.
-   - `db_key`: If a new DB key pair is required, provide a valid key pair name; otherwise, EC2 creation will **fail**.
+   - `certificate_arn`: Provide the AWS Certificate ARN for `*.clients.cx`. (You can find this in AWS Certificate Manager on AWS Console)
+   - `ui_ami_id`: Set to a shared UI AMI or a preset AWS AMI. If using a fresh AMI, ensure `ui_key` is configured. 
+   - `db_ami_id`: Set to a shared DB AMI or a preset AWS AMI. If using a fresh AMI, ensure `db_key` is configured. 
+   - `ui_key`: If a new UI key pair is required, provide a valid key pair name; otherwise, EC2 creation will **fail**. (refer to section **Step 3: AMI Key Pair**)
+   - `db_key`: If a new DB key pair is required, provide a valid key pair name; otherwise, EC2 creation will **fail**. (refer to section **Step 3: AMI Key Pair**)
    - `ssl_policy`: Set a valid SSL policy for the load balancer (e.g., `ELBSecurityPolicy-TLS13-1-2-2021-06`).
 
 4. **Edit `main.tf` to configure the S3 backend:**
