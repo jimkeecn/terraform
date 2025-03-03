@@ -149,7 +149,7 @@ aws s3 ls
    - `is_prod`: Set to `true` for production environments, otherwise `false`. (this is crusial to allow the script to know whether to include env variable inside the route53 or not. e.g cxisoftware.clients.cx or cxisoftware-stagging.clients.cx)
    - `environment`: Use one of `Dev`, `Test`, `Prod`, `Staging`, or `Sandbox` (must match camel case format).
    - `client_name`: Set to the client name (e.g., `cxi`, `primevalue`). This is used for Route 53 URLs and resource naming.
-   - `client_force_url`: Specify a custom URL if required; otherwise, leave blank.
+   - `client_force_url`: Specify a custom URL prefix if required; otherwise, leave blank. (this only use if you want the route53 url different from `client_name` e,g **cxisoftware** wants **cxiregistry.clients.cx**, so provides **cxiregistry** in this value)
    - `client_region`: Set to a valid AWS region (e.g., `ap-southeast-2`).
    - `certificate_arn`: Provide the ARN for `*.clients.cx`.
    - `ui_ami_id`: Set to a shared UI AMI or a preset AWS AMI. If using a fresh AMI, ensure `ui_key` is configured.
@@ -160,6 +160,10 @@ aws s3 ls
 
 4. **Edit `main.tf` to configure the S3 backend:**
    Locate the `backend "s3"` block and replace placeholders with actual values:
+
+   - **[bucket-client-name]** replace this string to the **client_name** default value in the above step.
+   - **[bucket-env]** replace this string to the **enviornment** default value in the above step and change it to all lowercase e.g Prod => prod
+   - **[bucket-region]** replace this string to the **client_region** default value in the above step.
 
    **Original:**
    ```
