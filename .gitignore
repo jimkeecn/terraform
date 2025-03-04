@@ -18,6 +18,7 @@ crash.log
 *.p12
 *.key
 *.crt
+*.env
 
 # Ignore Terraform plan output files
 plan.out

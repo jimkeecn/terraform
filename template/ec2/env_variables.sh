@@ -1,8 +1,8 @@
 #get value from terraform script
 param (
     [string]$environment,
-    [string]$client_name
-    [string]$client_force_url
+    [string]$client_name,
+    [string]$client_force_url,
 	[string]$client_region
 )
 
@@ -11,12 +11,12 @@ $dbUrl = $environment+"-db"
 $investorPortalAPI = "$client_name-$environment-invportal"
 
 # Load the .env file and set the variables
-$AWS_ACCESS_KEY_ID
-$AWS_SECRET_ACCESS_KEY
-$Database_Password
-$MasterSoftSecretKey
-$GreenIDSecretKey
-$SendGridKey
+$AWS_ACCESS_KEY_ID = $null
+$AWS_SECRET_ACCESS_KEY = $null
+$Database_Password = $null
+$MasterSoftSecretKey = $null
+$GreenIDSecretKey = $null
+$SendGridKey = $null
 
 # Get the parent directory of the script
 $parentDir = Split-Path -Parent $PSScriptRoot
@@ -34,10 +34,11 @@ Get-Content $envFilePath | ForEach-Object {
         $key = $matches[1].Trim()
         $value = $matches[2].Trim()
 
-        # Set the variable dynamically
-        Set-Variable -Name $key -Value $value -Scope Script
-
-        Write-Host "Loaded: $key"
+        # Avoid setting empty values
+        if ($value -ne "") {
+            Set-Variable -Name $key -Value $value -Scope Script
+            Write-Host "Loaded: $key"
+        }
     }
 }
 
@@ -123,5 +124,5 @@ $variables = @{
 # Loop through each key-value pair in the hashtable
 foreach ($variable in $variables.GetEnumerator()) {
     # Set the environment variable using the key and value from the hashtable
-    [System.Environment]::SetEnvironmentVariable($variable.Name, $variable.Value, "Machine")
+    [System.Environment]::SetEnvironmentVariable($variable.Name, $variable.Value, "User")
 }
