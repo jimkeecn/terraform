@@ -27,6 +27,8 @@ module "ec2" {
   ui_key = var.ui_key
   db_key = var.db_key
   environment = var.environment
+  client_name = var.client_name
+  client_force_url = var.client_force_url
 }
 
 module "route53" {

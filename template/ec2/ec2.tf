@@ -17,8 +17,16 @@ variable "db_key" {
   type = string
 }
 
+variable "client_name" {
+  type = string
+}
+
 variable "environment" {
   type = string
+}
+
+variable "client_force_url" { 
+  
 }
 
 
@@ -47,7 +55,11 @@ resource "aws_instance" "ui_instance" {
   ebs_optimized       = true
   monitoring          = true # Enable CloudWatch detailed monitoring
 
-  
+  user_data = templatefile("${path.module}/env_variables.sh", {
+    environment = var.environment
+    client_name = var.client_name
+    client_force_url = coalesce(var.client_force_url,var.client_name)
+  })
 
   root_block_device {
     volume_size           = 100
