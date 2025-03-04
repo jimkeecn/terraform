@@ -146,10 +146,9 @@ aws s3 ls
    ```
 
 3. **Edit `var.tf` file in the environment folder:**
-   - `is_prod`: Set to `true` for production environments, otherwise `false`. (this is crusial to allow the script to know whether to include env variable inside the route53 or not. e.g cxisoftware.clients.cx or cxisoftware-stagging.clients.cx)
    - `environment`: Use one of `Dev`, `Test`, `Prod`, `Staging`, or `Sandbox` (must match camel case format).
-   - `client_name`: Set to the client name (e.g., `cxi`, `primevalue`). This is used for Route 53 URLs and resource naming.
-   - `client_force_url`: Specify a custom URL prefix if required; otherwise, leave blank. (this only use if you want the route53 url different from `client_name` e,g **cxisoftware** wants **cxiregistry.clients.cx**, so provides **cxiregistry** in this value)
+   - `client_name`: Set to the client name and match with your aws profile (e.g., `cxi`, `primevalue`). This is used for **`Route 53 URLs` and `resource naming` and `aws cli`**
+   - `client_force_url`: Specify a custom URL prefix if required; otherwise, leave blank. (this only use if you want the public url different from `client_name` e,g **cxisoftware** wants **cxiregistry.clients.cx**, so provides **cxiregistry** in this value)
    - `client_region`: Set to a valid AWS region (e.g., `ap-southeast-2`).
    - `certificate_arn`: Provide the AWS Certificate ARN for `*.clients.cx`. (You can find this in AWS Certificate Manager on AWS Console)
    - `ui_ami_id`: Set to a shared UI AMI or a preset AWS AMI. If using a fresh AMI, ensure `ui_key` is configured. 

@@ -47,6 +47,7 @@ resource "aws_instance" "ui_instance" {
   ebs_optimized       = true
   monitoring          = true # Enable CloudWatch detailed monitoring
 
+  
 
   root_block_device {
     volume_size           = 100

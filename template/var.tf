@@ -1,8 +1,3 @@
-variable "is_prod" {
-  type = bool
-  default = true //Set the true if this is production env, otherwise is false
-}
-
 variable "environment" {
   description = "The environment to deploy (Dev, Test, Prod, Stagging, Sandbox)"
   type        = string

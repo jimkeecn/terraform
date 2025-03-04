@@ -35,8 +35,6 @@ module "route53" {
   db_instance_private_ip = module.ec2.db_private_ip
   vpc_root_id = module.vpc.vpc_id
   client_name = var.client_name
-  is_prod = var.is_prod
-  client_force_url = var.client_force_url
   environment = var.environment
 }
 
