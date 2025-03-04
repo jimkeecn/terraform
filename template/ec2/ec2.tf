@@ -29,6 +29,11 @@ variable "client_force_url" {
   
 }
 
+variable "client_region" {
+  type = string
+  
+}
+
 
 ##Uses an existing VPC, subnet, key pair, and security group.
 ##Attaches a 100GB gp2 EBS volume.
@@ -59,6 +64,7 @@ resource "aws_instance" "ui_instance" {
     environment = var.environment
     client_name = var.client_name
     client_force_url = coalesce(var.client_force_url,var.client_name)
+    client_region = var.client_region
   })
 
   root_block_device {

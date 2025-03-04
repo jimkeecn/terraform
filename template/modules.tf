@@ -1,17 +1,17 @@
 module "s3" {
   source = "./s3"
-  client_name = var.client_name
-  environment = var.environment
+  client_name = lower(var.client_name)
+  environment = lower(var.environment)
 }
 
 module "vpc" {
   source = "./vpc"
-  environment = var.environment
+  environment = lower(var.environment)
 }
 
 module "iam" {
   source = "./iam"
-  environment = var.environment
+  environment = lower(var.environment)
 }
 
 module "ec2" {
@@ -26,9 +26,10 @@ module "ec2" {
   db_ami_id = var.db_ami_id
   ui_key = var.ui_key
   db_key = var.db_key
-  environment = var.environment
-  client_name = var.client_name
+  environment = lower(var.environment)
+  client_name = lower(var.client_name)
   client_force_url = var.client_force_url
+  client_region = var.client_region
 }
 
 module "route53" {
@@ -36,8 +37,8 @@ module "route53" {
   ui_instance_private_ip = module.ec2.ui_private_ip
   db_instance_private_ip = module.ec2.db_private_ip
   vpc_root_id = module.vpc.vpc_id
-  client_name = var.client_name
-  environment = var.environment
+  client_name = lower(var.client_name)
+  environment = lower(var.environment)
 }
 
 module "target_group"{
@@ -45,7 +46,7 @@ module "target_group"{
   vpc_root_id = module.vpc.vpc_id
   ui_instance_id = module.ec2.ui_instance_id
   db_instance_id = module.ec2.db_instance_id
-  environment = var.environment
+  environment = lower(var.environment)
 }
 
 module "load_balancer" {
@@ -57,12 +58,12 @@ module "load_balancer" {
   vpc_dummy_subnet_id = module.vpc.dummy_subnet_id
   certifcate_arn = var.certifcate_arn
   load_balancer_security_group_id = module.vpc.load_balancer_security_group_id
-  environment = var.environment
+  environment = lower(var.environment)
   ssl_policy = var.ssl_policy
 }
 
 module "dynamodb" {
   source = "./dynamodb"
-  environment = var.environment
-  client_name = var.client_name
+  environment = lower(var.environment)
+  client_name = lower(var.client_name)
 }

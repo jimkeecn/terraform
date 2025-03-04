@@ -164,7 +164,7 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "auth0_deploy_encr
 
 // Create a new S3 bucket with the For Taurus-File_storage
 resource "aws_s3_bucket" "file_storage" {
-  bucket = "${lower(var.client_name)}-${lower(var.environment)}-file-storage"
+  bucket = "${lower(var.client_name)}-${lower(var.environment)}-taurus-filestorage"
   
 }
 
@@ -186,6 +186,9 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "file_storage_encr
     bucket_key_enabled = false
   }
 }
+
+
+
 
 
 
